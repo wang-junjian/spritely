@@ -1,5 +1,7 @@
 # Spritely
 
+English | [中文](README.zh.md)
+
 > *Your spritely work companion* — a floating mascot for the dsh web UI that reacts to the agent's live work state.
 
 Spritely (formerly the `ui-sprite` plugin) is a dsh client plugin that drops a small, animated character into the corner of the web interface. It watches the agent's activity — idle, thinking, writing, running tools, waiting on you, erroring, or finishing a run — and plays a matching pose, tracks your cursor with its eyes, and can be dragged anywhere.

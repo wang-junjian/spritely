@@ -1,5 +1,7 @@
 # Spritely
 
+[English](README.md) | 中文
+
 > *Your spritely work companion* —— dsh Web 界面的工作精灵，随智能体的工作状态实时做出表情与动作。
 
 Spritely（原名 `ui-sprite` 插件）是一个 dsh 客户端插件，在界面角落放一个会动的小精灵：它观察智能体的活动（待命、思考、撰写、调用工具、等你确认、出错、完成），播放对应姿态，眼珠跟随鼠标，还能被拖到任意位置。
