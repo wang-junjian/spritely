@@ -18,20 +18,29 @@ Spritely (formerly the `ui-sprite` plugin) is a dsh client plugin that drops a s
 
 ## Install
 
-Spritely is a dsh client plugin. Add it to your dsh web composition's plugin roster and install the package:
+Spritely is a **dsh client plugin** (`dsh.client`, not a `dsh.bundle`). It ships prebuilt artifacts (`lib/`), so it installs from git or a local checkout without any build step. Activating it in a dsh profile takes two steps:
+
+**1. Install the package into the profile.**
 
 ```bash
-npm install @deepseek-ai/dsh-client-ui-sprite
+# from git
+dsh plugin --profile <name> add github:wang-junjian/spritely
+
+# or from a local checkout
+dsh plugin --profile <name> add ./spritely
 ```
 
-Then register it in your bundle's `cordis.patch.yml` browser plugin roster:
+**2. Register a row in the browser plugin roster.** Because Spritely declares `dsh.client` rather than `dsh.bundle`, `dsh plugin add` installs it as a plain dependency (printing "activates no layer") and does **not** register a row for you. Add this row to your profile's patch layer at `~/.dsh/profiles/<name>/cordis.patch.yml`:
 
 ```yaml
-- id: ui-sprite
-  name: '@deepseek-ai/dsh-client-ui-sprite'
+- insert:
+    - id: ui-sprite
+      name: '@deepseek-ai/dsh-client-ui-sprite'
 ```
 
-The plugin declares its own `dsh.client` metadata (`platform: web`), so the host Loader picks it up and serves its client bundle automatically.
+The plugin carries its own `dsh.client` metadata (`platform: web` plus its `inject` edges), so once the row is present the host Loader scans it, serves `/plugins/ui-sprite/client.js`, and injects it into `window.__DSH_BOOT__` automatically.
+
+> Its peer dependencies (`@deepseek-ai/dsh-client-runtime`, `dsh-client-ui-layout`, `dsh-client-locale`, …) are in-box dsh packages resolved from the dsh installation itself — they need not be installed separately.
 
 ## Usage
 

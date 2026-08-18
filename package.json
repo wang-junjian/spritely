@@ -5,6 +5,17 @@
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "mascot",
+    "sprite",
+    "web-ui"
+  ],
+  "homepage": "https://github.com/wang-junjian/spritely#readme",
+  "bugs": {
+    "url": "https://github.com/wang-junjian/spritely/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wang-junjian/spritely.git"

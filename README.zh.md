@@ -16,20 +16,29 @@ Spritely（原名 `ui-sprite` 插件）是一个 dsh 客户端插件，在界面
 
 ## 安装
 
-Spritely 是 dsh 客户端插件，把它加入 dsh Web 组合的插件清单并安装包：
+Spritely 是一个 **dsh 客户端插件**（`dsh.client`，而非 `dsh.bundle`）。它自带构建产物（`lib/`），可从 git 或本地源码直接安装、无需 build。在 dsh profile 里激活它需要两步：
+
+**1. 把包装进 profile。**
 
 ```bash
-npm install @deepseek-ai/dsh-client-ui-sprite
+# 从 git 安装
+dsh plugin --profile <name> add github:wang-junjian/spritely
+
+# 或从本地源码
+dsh plugin --profile <name> add ./spritely
 ```
 
-然后在组合包的 `cordis.patch.yml` 浏览器插件清单里登记一行：
+**2. 在浏览器插件清单里登记一行。** 因为 Spritely 声明的是 `dsh.client` 而非 `dsh.bundle`，`dsh plugin add` 只会把它当普通依赖安装（打印 "activates no layer"），**不会**替你登记 row。请在 profile 的补丁层 `~/.dsh/profiles/<name>/cordis.patch.yml` 里加上：
 
 ```yaml
-- id: ui-sprite
-  name: '@deepseek-ai/dsh-client-ui-sprite'
+- insert:
+    - id: ui-sprite
+      name: '@deepseek-ai/dsh-client-ui-sprite'
 ```
 
-插件自身声明了 `dsh.client` 元数据（`platform: web`），宿主 Loader 会自动识别并 serve 其客户端 bundle。
+插件自带 `dsh.client` 元数据（`platform: web` + 其 `inject` 依赖），只要 row 存在，宿主 Loader 就会扫描它、serve `/plugins/ui-sprite/client.js`，并注入 `window.__DSH_BOOT__`。
+
+> 它的 peer 依赖（`@deepseek-ai/dsh-client-runtime`、`dsh-client-ui-layout`、`dsh-client-locale` 等）都是 dsh 自带的 in-box 包，从 dsh 安装本身解析，无需单独安装。
 
 ## 使用
 
