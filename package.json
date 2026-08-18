@@ -56,24 +56,25 @@
     "test": "vitest run"
   },
   "license": "MIT",
-  "dependencies": {},
   "peerDependencies": {
-    "@deepseek-ai/cordis": "^0.1.0-rc.5",
+    "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
-    "react": "^18.2.0"
+    "react": "^18.3.1"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": "^0.1.0-rc.5",
+    "@deepseek-ai/cordis": "^4.0.1",
     "@deepseek-ai/dsh-client-locale": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-runtime": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-layout": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-client-ui-slots": "^0.1.0-rc.5",
     "@deepseek-ai/dsh-invariants": "^0.1.0-rc.5",
-    "@types/react": "~18.3.1",
-    "react": "^18.2.0"
+    "@types/react": "~18.3.31",
+    "lightningcss": "^1.33.0",
+    "react": "^18.3.1",
+    "tsdown": "^0.22.14"
   },
   "files": [
     "lib/index.js",
