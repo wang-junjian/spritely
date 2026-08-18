@@ -1,0 +1,534 @@
+/* The mascot floats at the bottom-right of the viewport; a drag swaps the
+   corner anchoring for an explicit left/top pair (inline style). The menu is
+   absolutely positioned, so opening it never changes the mascot's own box. */
+.anchor {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  /* Keep the whole surface (menu included) out of the overlay's click-through. */
+  pointer-events: auto;
+}
+
+/* The button is the whole mascot: reset chrome, opt into pointer events, and
+   let the SVG breathe. Dragging moves it, so grabbing disables text selection. */
+.sprite {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: grab;
+  width: 96px;
+  height: 96px;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 80%;
+  touch-action: none;
+  user-select: none;
+}
+
+.sprite:active {
+  cursor: grabbing;
+}
+
+.sprite:focus-visible {
+  border-radius: 50%;
+  outline: 2px solid var(--dsw-static-blue-500, #3B82F6);
+  outline-offset: 4px;
+}
+
+.sprite svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* ── per-pose animation of the whole mascot ──────────────────────────────── */
+
+.sprite[data-pose='idle'] { animation: float 3s ease-in-out infinite; }
+.sprite[data-pose='thinking'] { animation: pulse 1.2s ease-in-out infinite; }
+.sprite[data-pose='writing'] { animation: wiggle 0.7s ease-in-out infinite; }
+.sprite[data-pose='working'] { animation: bounce 0.7s ease-in-out infinite; }
+.sprite[data-pose='waiting'] { animation: sway 1.6s ease-in-out infinite; }
+.sprite[data-pose='error'] { animation: shake 0.4s ease-in-out infinite; }
+.sprite[data-pose='done'] { animation: celebrate 1.4s ease-in-out; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-4deg); }
+  75% { transform: rotate(4deg); }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-10px) scale(0.98, 1.02); }
+  50% { transform: translateY(0) scale(1.03, 0.97); }
+  70% { transform: translateY(-4px) scale(1, 1); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+@keyframes celebrate {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  30% { transform: translateY(-16px) rotate(-8deg) scale(1.05); }
+  60% { transform: translateY(-6px) rotate(6deg) scale(1.08); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+/* ── accessory micro-animations ──────────────────────────────────────────── */
+
+.star { transform-origin: center; transform-box: fill-box; }
+.sprite[data-pose='done'] .star { animation: spin 0.9s linear infinite; }
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.gear { transform-origin: 90px 44px; }
+.sprite[data-pose='working'] .gear { animation: spin 1.2s linear infinite; }
+
+.dots > circle { opacity: 0; }
+.sprite[data-pose='thinking'] .dots > circle,
+.sprite[data-pose='waiting'] .dots > circle { animation: blink 1s ease-in-out infinite; }
+.sprite[data-pose='thinking'] .dots > circle:nth-child(2),
+.sprite[data-pose='waiting'] .dots > circle:nth-child(2) { animation-delay: 0.2s; }
+.sprite[data-pose='thinking'] .dots > circle:nth-child(3),
+.sprite[data-pose='waiting'] .dots > circle:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blink {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+.pencil { transform-origin: 92px 60px; transform-box: fill-box; }
+.sprite[data-pose='writing'] .pencil { animation: scribble 0.9s ease-in-out infinite; }
+
+@keyframes scribble {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); }
+  50% { transform: rotate(45deg) translate(2px, -2px); }
+}
+
+.sweat { transform-origin: 88px 59px; transform-box: fill-box; }
+.sprite[data-pose='error'] .sweat { animation: drip 1.4s ease-in-out infinite; }
+
+@keyframes drip {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(4px); opacity: 0.5; }
+}
+
+/* ── the click menu, the background panel, and the attention dot ─────────── */
+
+/* Sci-fi HUD styling: both surfaces are fixed dark holographic panels with a
+   cyan neon frame. The palette is a deliberate, fixed HUD palette (not theme
+   tokens) so the overlay reads identically over any app theme — like a game
+   HUD. They stay absolutely positioned beside the mascot, so opening either
+   never reflows the mascot's own box. */
+
+.menu,
+.backgroundPanel,
+.spritePanel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  background: rgba(8, 16, 32, 0.96);
+  box-shadow: 0 0 18px rgba(34, 211, 238, 0.22), 0 8px 24px rgba(0, 0, 0, 0.45);
+  color: #E0F2FE;
+  animation: fade-in 0.15s ease-out;
+}
+
+/* A top placement anchors the popover above the mascot; a start alignment
+   pins its left edge to the mascot's left edge (for mascots near the
+   viewport's left side). Both flip independently from the measured space. */
+.anchor[data-vertical='top'] .menu,
+.anchor[data-vertical='top'] .backgroundPanel,
+.anchor[data-vertical='top'] .spritePanel {
+  top: auto;
+  bottom: calc(100% + 8px);
+}
+
+.anchor[data-horizontal='start'] .menu,
+.anchor[data-horizontal='start'] .backgroundPanel,
+.anchor[data-horizontal='start'] .spritePanel {
+  right: auto;
+  left: 0;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 152px;
+  padding: 8px;
+}
+
+.backgroundPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 238px;
+  padding: 12px;
+}
+
+.spritePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 256px;
+  padding: 12px;
+}
+
+/* HUD corner brackets (top-left and bottom-right), drawn with two
+   pseudo-elements over the neon frame. */
+.backgroundPanel::before,
+.backgroundPanel::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-style: solid;
+  border-color: #22D3EE;
+  border-width: 0;
+  pointer-events: none;
+}
+
+.backgroundPanel::before {
+  top: -1px;
+  left: -1px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 12px;
+}
+
+.backgroundPanel::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+  border-bottom-right-radius: 12px;
+}
+
+.menuItem {
+  appearance: none;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: left;
+  color: #E0F2FE;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background: rgba(34, 211, 238, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.35);
+  color: #A5F3FC;
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid #22D3EE;
+  outline-offset: 2px;
+}
+
+.menuIcon {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  color: #22D3EE;
+}
+
+/* ── the background panel's controls ─────────────────────────────────────── */
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(34, 211, 238, 0.25);
+}
+
+.panelTitle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: #A5F3FC;
+}
+
+/* Pulsing online beacon ahead of the title. */
+.panelTitle::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22D3EE;
+  box-shadow: 0 0 8px #22D3EE;
+  animation: beacon 1.4s ease-in-out infinite;
+}
+
+.panelBack {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #7DD3FC;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.panelBack:hover {
+  background: rgba(34, 211, 238, 0.12);
+  color: #A5F3FC;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #7DD3FC;
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Round "energy crystal" swatches with a neon selection ring. */
+.swatch {
+  appearance: none;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.swatch:hover {
+  border-color: rgba(34, 211, 238, 0.8);
+}
+
+.swatch[data-selected] {
+  border-color: #22D3EE;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+  outline: 2px solid #22D3EE;
+  outline-offset: 2px;
+}
+
+.imageRow {
+  display: flex;
+  gap: 6px;
+}
+
+.imageInput {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  background: rgba(15, 30, 55, 0.9);
+  color: #E0F2FE;
+  font-size: 12px;
+}
+
+.imageInput::placeholder {
+  color: #7DD3FC;
+  opacity: 0.7;
+}
+
+.imageInput:focus-visible {
+  outline: 2px solid #22D3EE;
+  outline-offset: 1px;
+}
+
+/* Neon cyan apply button. */
+.imageApply {
+  appearance: none;
+  border: none;
+  background: #22D3EE;
+  color: #062033;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+}
+
+.imageApply:hover {
+  background: #67E8F9;
+}
+
+/* Local-file upload: a dashed drop-zone-style button. */
+.uploadButton {
+  display: block;
+  appearance: none;
+  border: 1px dashed rgba(34, 211, 238, 0.5);
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  text-align: center;
+  color: #7DD3FC;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.uploadButton:hover {
+  border-color: #22D3EE;
+  color: #A5F3FC;
+  background: rgba(34, 211, 238, 0.08);
+}
+
+/* ── image scale + fade controls (shown only for an image background) ────── */
+
+.fitRow {
+  display: flex;
+  gap: 6px;
+}
+
+.fitButton {
+  appearance: none;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: transparent;
+  flex: 1;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #7DD3FC;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.fitButton:hover {
+  border-color: rgba(34, 211, 238, 0.7);
+  color: #A5F3FC;
+}
+
+.fitButton[data-selected] {
+  border-color: #22D3EE;
+  color: #A5F3FC;
+  background: rgba(34, 211, 238, 0.12);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+}
+
+/* Neon energy bar. */
+.veilSlider {
+  width: 100%;
+  accent-color: #22D3EE;
+}
+
+.reset {
+  appearance: none;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  color: #7DD3FC;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.reset:hover {
+  border-color: rgba(34, 211, 238, 0.7);
+  color: #A5F3FC;
+  background: rgba(34, 211, 238, 0.08);
+}
+
+/* ── the sprite selection panel ──────────────────────────────────────────── */
+
+.spriteGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.spriteOption {
+  appearance: none;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: transparent;
+  border-radius: 10px;
+  padding: 8px 4px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #7DD3FC;
+  cursor: pointer;
+}
+
+.spriteOption:hover {
+  border-color: rgba(34, 211, 238, 0.7);
+}
+
+.spriteOption[data-selected] {
+  border-color: #22D3EE;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.35);
+  color: #A5F3FC;
+}
+
+.spriteOption svg {
+  width: 56px;
+  height: 56px;
+}
+
+.spriteName {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes beacon {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.attentionDot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--dsw-alias-bg-layer-1);
+}
+
+.attentionDot[data-kind='waiting'] { background: var(--dsw-alias-state-warn-primary); }
+.attentionDot[data-kind='error'] { background: var(--dsw-alias-state-error-primary); }
