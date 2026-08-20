@@ -8,6 +8,8 @@ Spritely (formerly the `ui-sprite` plugin) is a dsh client plugin that drops a s
 
 <p align="center"><em>Four characters: Blob · Bot · Cat · Ghost</em></p>
 
+![](images/dsh-plugin-spritely.webp)
+
 ## Features
 
 - **Four switchable characters** — Blob (blue ball), Bot (mint robot), Cat (amber kitty), Ghost (violet specter), each with its own body and eye style.
@@ -17,6 +19,10 @@ Spritely (formerly the `ui-sprite` plugin) is a dsh client plugin that drops a s
 - **Customizable background** — solid colors, gradients, image URLs, and local image upload, with fit (contain / stretch) and a fade veil for legibility.
 - **Sci-fi HUD styling** — the menu and panels use a fixed dark holographic palette with a cyan neon frame.
 - **Persisted** — your character, background, and position survive reloads.
+
+![](images/demo1.webp)
+
+![](images/demo2.webp)
 
 ## Install
 
