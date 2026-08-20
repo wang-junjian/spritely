@@ -1,38 +1,36 @@
 # Spritely
 
-English | [中文](README.zh.md)
+中文 | [英文](README.en.md)
 
-> *Your spritely work companion* — a floating mascot for the dsh web UI that reacts to the agent's live work state.
+> *Your spritely work companion* —— dsh Web 界面的工作精灵，随智能体的工作状态实时做出表情与动作。
 
-Spritely (formerly the `ui-sprite` plugin) is a dsh client plugin that drops a small, animated character into the corner of the web interface. It watches the agent's activity — idle, thinking, writing, running tools, waiting on you, erroring, or finishing a run — and plays a matching pose, tracks your cursor with its eyes, and can be dragged anywhere.
+Spritely（原名 `ui-sprite` 插件）是一个 dsh 客户端插件，在界面角落放一个会动的小精灵：它观察智能体的活动（待命、思考、撰写、调用工具、等你确认、出错、完成），播放对应姿态，眼珠跟随鼠标，还能被拖到任意位置。
 
-<p align="center"><em>Four characters: Blob · Bot · Cat · Ghost</em></p>
+## 功能特性
 
-## Features
+- **四款可切换角色** —— 蓝球（Blob）、薄荷机器人（Bot）、猫咪（Cat）、幽灵（Ghost），各有独特造型与眼睛风格。
+- **实时工作状态姿态** —— 待命 / 思考 / 撰写 / 工作 / 等待 / 出错，以及运行收尾时的短暂庆祝。
+- **眼珠跟随鼠标**（rAF 节流）。
+- **可拖拽** —— 拖到任意位置，一键归位。
+- **自定义背景** —— 纯色、渐变、图片 URL、本地图片上传，支持等比居中 / 全屏拉伸缩放 + 淡化遮罩（保证文字可读）。
+- **科幻 HUD 风格** —— 菜单与面板采用固定深色全息配色 + 青色霓虹描边。
+- **持久化** —— 角色、背景、位置刷新后保留。
 
-- **Four switchable characters** — Blob (blue ball), Bot (mint robot), Cat (amber kitty), Ghost (violet specter), each with its own body and eye style.
-- **Live work-state poses** — idle, thinking, writing, working, waiting, error, and a brief celebration when a run settles.
-- **Cursor-tracking eyes** — pupils follow the mouse (rAF-throttled).
-- **Draggable** — grab and move the mascot anywhere; reset returns it to the corner.
-- **Customizable background** — solid colors, gradients, image URLs, and local image upload, with fit (contain / stretch) and a fade veil for legibility.
-- **Sci-fi HUD styling** — the menu and panels use a fixed dark holographic palette with a cyan neon frame.
-- **Persisted** — your character, background, and position survive reloads.
+## 安装
 
-## Install
+Spritely 是一个 **dsh 客户端插件**（`dsh.client`，而非 `dsh.bundle`）。它自带构建产物（`lib/`），可从 git 或本地源码直接安装、无需 build。在 dsh profile 里激活它需要两步：
 
-Spritely is a **dsh client plugin** (`dsh.client`, not a `dsh.bundle`). It ships prebuilt artifacts (`lib/`), so it installs from git or a local checkout without any build step. Activating it in a dsh profile takes two steps:
-
-**1. Install the package into the profile.**
+**1. 把包装进 profile。**
 
 ```bash
-# from git
+# 从 git 安装
 dsh plugin --profile <name> add github:wang-junjian/spritely
 
-# or from a local checkout
+# 或从本地源码
 dsh plugin --profile <name> add ./spritely
 ```
 
-**2. Register a row in the browser plugin roster.** Because Spritely declares `dsh.client` rather than `dsh.bundle`, `dsh plugin add` installs it as a plain dependency (printing "activates no layer") and does **not** register a row for you. Add this row to your profile's patch layer at `~/.dsh/profiles/<name>/cordis.patch.yml`:
+**2. 在浏览器插件清单里登记一行。** 因为 Spritely 声明的是 `dsh.client` 而非 `dsh.bundle`，`dsh plugin add` 只会把它当普通依赖安装（打印 "activates no layer"），**不会**替你登记 row。请在 profile 的补丁层 `~/.dsh/profiles/<name>/cordis.patch.yml` 里加上：
 
 ```yaml
 - insert:
@@ -40,38 +38,38 @@ dsh plugin --profile <name> add ./spritely
       name: '@deepseek-ai/dsh-client-ui-sprite'
 ```
 
-The plugin carries its own `dsh.client` metadata (`platform: web` plus its `inject` edges), so once the row is present the host Loader scans it, serves `/plugins/ui-sprite/client.js`, and injects it into `window.__DSH_BOOT__` automatically.
+插件自带 `dsh.client` 元数据（`platform: web` + 其 `inject` 依赖），只要 row 存在，宿主 Loader 就会扫描它、serve `/plugins/ui-sprite/client.js`，并注入 `window.__DSH_BOOT__`。
 
-> Its peer dependencies (`@deepseek-ai/dsh-client-runtime`, `dsh-client-ui-layout`, `dsh-client-locale`, …) are in-box dsh packages resolved from the dsh installation itself — they need not be installed separately.
+> 它的 peer 依赖（`@deepseek-ai/dsh-client-runtime`、`dsh-client-ui-layout`、`dsh-client-locale` 等）都是 dsh 自带的 in-box 包，从 dsh 安装本身解析，无需单独安装。
 
-## Usage
+## 使用
 
-Click the mascot to open its menu:
+点击精灵打开菜单：
 
-- **New session** — start a new session (default workspace flow).
-- **Reset position** — return the mascot to its default corner.
-- **Set background** — open the background console (colors, gradients, image URL, local upload, scale, fade).
-- **Switch sprite** — pick one of the four characters.
+- **新会话** —— 开启新会话（默认工作区流程）。
+- **归位** —— 回到默认右下角。
+- **设置背景** —— 打开背景控制台（纯色、渐变、图片 URL、本地上传、缩放、淡化）。
+- **选择精灵** —— 在四款角色中切换。
 
-## Characters
+## 角色
 
-| Character | Look | Palette |
+| 角色 | 造型 | 配色 |
 |---|---|---|
-| Blob | round ball + antenna star | blue |
-| Bot | rounded head + LED eyes | mint green |
-| Cat | triangular ears + vertical pupils + whiskers | amber |
-| Ghost | wavy hem + big round eyes | violet |
+| 蓝球 Blob | 圆球 + 天线星 | 蓝 |
+| 机器人 Bot | 圆角方头 + LED 眼 | 薄荷绿 |
+| 猫咪 Cat | 三角耳 + 竖瞳 + 胡须 | 橙 |
+| 幽灵 Ghost | 波浪底边 + 大圆眼 | 紫 |
 
-## Development
+## 开发
 
 ```bash
-npm install          # installs dsh peer dependencies + dev tooling
-npm run build        # tsc (types) + tsdown (node-half lib + browser client bundle)
+npm install          # 安装 dsh peer 依赖 + 开发工具链
+npm run build        # tsc（类型）+ tsdown（node 半 lib + 浏览器 client bundle）
 npm test             # vitest
 npm run watch        # tsdown --watch
 ```
 
-The build emits the node-half library (`lib/index.js`, `lib/invariant.js`) and the browser client bundle (`lib/client.js`) in dsh's `__ModuleLoader__` closure-factory format, with CSS Modules inlined by lightningcss.
+构建产出 node 半库（`lib/index.js`、`lib/invariant.js`）和浏览器客户端 bundle（`lib/client.js`，dsh 的 `__ModuleLoader__` 闭包工厂格式），CSS Modules 由 lightningcss 内联。
 
 ## License
 
