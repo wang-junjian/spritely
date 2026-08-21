@@ -22,7 +22,7 @@ export interface SpriteState {
 }
 /**
  * Project the current session's live facts into one {@link SpriteState}.
- * Pure: reads only the two supplied snapshots and returns a fresh value.
+ * Pure: reads only the supplied snapshots and returns a fresh value.
  *
  * Precedence: a pending interaction wins (the user must answer), then a
  * failed turn, then the running phase, then idle. While running, in-flight

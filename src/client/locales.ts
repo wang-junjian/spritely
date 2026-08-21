@@ -2,7 +2,7 @@
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
-  'state.idle': '待命',
+  'state.idle': '准备就绪',
   'state.thinking': '思考中',
   'state.writing': '正在撰写回复',
   'state.working': '正在调用工具',
@@ -38,7 +38,7 @@ export type SpriteKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
-  'state.idle': 'Idle',
+  'state.idle': 'Ready',
   'state.thinking': 'Thinking',
   'state.writing': 'Writing a reply',
   'state.working': 'Running a tool',

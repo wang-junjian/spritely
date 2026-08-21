@@ -30,7 +30,7 @@ const IDLE: SpriteState = Object.freeze({ activity: 'idle', toolName: undefined 
 
 /**
  * Project the current session's live facts into one {@link SpriteState}.
- * Pure: reads only the two supplied snapshots and returns a fresh value.
+ * Pure: reads only the supplied snapshots and returns a fresh value.
  *
  * Precedence: a pending interaction wins (the user must answer), then a
  * failed turn, then the running phase, then idle. While running, in-flight
@@ -73,7 +73,7 @@ export function deriveSpriteState(
   return { activity: 'thinking', toolName: undefined }
 }
 
-/** Reference equality for the projected state (flat, JSON-safe fields only). */
+/** Deep-enough equality for the projected state. */
 function sameState(a: SpriteState, b: SpriteState): boolean {
   return a.activity === b.activity && a.toolName === b.toolName
 }

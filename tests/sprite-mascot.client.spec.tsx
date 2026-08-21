@@ -72,7 +72,7 @@ function drag(button: HTMLElement, dx: number, dy: number): void {
 describe('SpriteMascot', () => {
   it('renders idle without a menu', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     expect(button.getAttribute('data-activity')).toBe('idle')
     expect(button.getAttribute('data-pose')).toBe('idle')
     expect(screen.queryByRole('menu')).toBeNull()
@@ -98,7 +98,7 @@ describe('SpriteMascot', () => {
 
   it('flips the menu above the mascot when there is no room below', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     const anchor = button.parentElement!
     // Anchor pinned near the bottom edge: space below is too tight, above is ample.
     vi.spyOn(anchor, 'getBoundingClientRect').mockReturnValue({
@@ -111,14 +111,14 @@ describe('SpriteMascot', () => {
 
   it('keeps the menu below when there is room', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     fireEvent.click(button)
     expect(button.parentElement!.getAttribute('data-vertical')).toBe('bottom')
   })
 
   it('left-aligns the menu when a right-aligned one would overflow the left edge', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     const anchor = button.parentElement!
     // The mascot sits against the left edge; the open menu is 128px wide, so a
     // right-aligned menu (pinned to the mascot's right edge) would clip off-screen.
@@ -136,14 +136,14 @@ describe('SpriteMascot', () => {
 
   it('keeps the menu right-aligned when there is room on the left', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     fireEvent.click(button)
     expect(button.parentElement!.getAttribute('data-horizontal')).toBe('end')
   })
 
   it('starts a New Session from the menu and closes it', () => {
     const { startSession } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'New session' }))
     expect(startSession).toHaveBeenCalledOnce()
     expect(screen.queryByRole('menu')).toBeNull()
@@ -151,7 +151,7 @@ describe('SpriteMascot', () => {
 
   it('opens the background panel from the menu', () => {
     mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     expect(screen.getByRole('dialog')).not.toBeNull()
     expect(screen.queryByRole('menu')).toBeNull()
@@ -159,7 +159,7 @@ describe('SpriteMascot', () => {
 
   it('opens the sprite panel and switches the mascot', () => {
     const { setSpriteKind } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Switch sprite' }))
     expect(screen.getByRole('dialog')).not.toBeNull()
     // The roster lists all four sprites by name.
@@ -173,7 +173,7 @@ describe('SpriteMascot', () => {
 
   it('applies a solid color and keeps the panel open', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.click(screen.getByRole('button', { name: '天空' }))
     expect(setBackground).toHaveBeenCalledWith({ kind: 'color', value: '#EAF3FB', fit: 'contain', veil: DEFAULT_VEIL })
@@ -182,7 +182,7 @@ describe('SpriteMascot', () => {
 
   it('applies a gradient', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.click(screen.getByRole('button', { name: '黄昏' }))
     expect(setBackground).toHaveBeenCalledWith({ kind: 'gradient', value: 'linear-gradient(135deg, #F6D365 0%, #FDA085 100%)', fit: 'contain', veil: DEFAULT_VEIL })
@@ -190,7 +190,7 @@ describe('SpriteMascot', () => {
 
   it('applies an image URL with contain fit and a default fade', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.change(screen.getByPlaceholderText('Paste an image URL'), { target: { value: 'https://example.com/bg.png' } })
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
@@ -199,7 +199,7 @@ describe('SpriteMascot', () => {
 
   it('applies a local image via upload as a data URL', async () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     const input = document.querySelector('input[type="file"]') as HTMLInputElement
     const file = new File(['fake-image-bytes'], 'bg.png', { type: 'image/png' })
@@ -212,7 +212,7 @@ describe('SpriteMascot', () => {
 
   it('shows the scale and fade controls only after an image is applied', () => {
     mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     // No image selected yet — the image-specific controls are hidden.
     expect(screen.queryByRole('button', { name: 'Fit (contain)' })).toBeNull()
@@ -226,7 +226,7 @@ describe('SpriteMascot', () => {
 
   it('switches the image to full-screen stretch', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined }, { kind: 'image', value: 'x.png', fit: 'contain', veil: DEFAULT_VEIL })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.click(screen.getByRole('button', { name: 'Stretch (fill)' }))
     expect(setBackground).toHaveBeenCalledWith({ kind: 'image', value: 'x.png', fit: 'fill', veil: DEFAULT_VEIL })
@@ -234,7 +234,7 @@ describe('SpriteMascot', () => {
 
   it('re-seeds the image URL field when the background panel reopens', () => {
     mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     const urlInput = () => screen.getByPlaceholderText('Paste an image URL') as HTMLInputElement
     fireEvent.change(urlInput(), { target: { value: 'https://example.com/bg.png' } })
@@ -247,7 +247,7 @@ describe('SpriteMascot', () => {
 
   it('adjusts the image fade via the slider', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined }, { kind: 'image', value: 'x.png', fit: 'contain', veil: DEFAULT_VEIL })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.change(screen.getByRole('slider'), { target: { value: '70' } })
     expect(setBackground).toHaveBeenCalledWith({ kind: 'image', value: 'x.png', fit: 'contain', veil: 0.7 })
@@ -255,7 +255,7 @@ describe('SpriteMascot', () => {
 
   it('resets the background to the theme default', () => {
     const { setBackground } = mount({ activity: 'idle', toolName: undefined }, { kind: 'color', value: '#EAF3FB', fit: 'contain', veil: DEFAULT_VEIL })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.click(screen.getByRole('button', { name: 'Reset to default' }))
     expect(setBackground).toHaveBeenCalledWith(null)
@@ -263,7 +263,7 @@ describe('SpriteMascot', () => {
 
   it('returns from the background panel to the menu', () => {
     mount({ activity: 'idle', toolName: undefined })
-    fireEvent.click(screen.getByRole('button', { name: 'Idle' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Ready' }))
     fireEvent.click(screen.getByRole('menuitem', { name: 'Set background' }))
     fireEvent.click(screen.getByRole('button', { name: 'Back' }))
     expect(screen.getByRole('menu')).not.toBeNull()
@@ -272,7 +272,7 @@ describe('SpriteMascot', () => {
 
   it('drags to a new position and does not toggle the menu on the trailing click', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     drag(button, 120, 80)
     expect(button.parentElement!.style.left).toBe('120px')
     expect(button.parentElement!.style.top).toBe('80px')
@@ -283,7 +283,7 @@ describe('SpriteMascot', () => {
 
   it('resets to the default corner from the menu', () => {
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     drag(button, 120, 80)
     // Consume the suppressed trailing click, then open the menu for real.
     fireEvent.click(button)
@@ -325,7 +325,7 @@ describe('SpriteMascot', () => {
   it('nudges the pupils toward the cursor', () => {
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => { cb(0); return 1 })
     mount({ activity: 'idle', toolName: undefined })
-    const button = screen.getByRole('button', { name: 'Idle' })
+    const button = screen.getByRole('button', { name: 'Ready' })
     const anchor = button.parentElement!
     // The anchor box maps 1:1 to the 120×120 viewBox for this assertion.
     vi.spyOn(anchor, 'getBoundingClientRect').mockReturnValue({

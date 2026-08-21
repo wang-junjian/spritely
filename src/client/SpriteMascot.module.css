@@ -36,6 +36,14 @@
   outline-offset: 4px;
 }
 
+.spriteBody {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 80%;
+  transition: transform 0.1s ease-out;
+}
+
 .sprite svg {
   width: 100%;
   height: 100%;
@@ -43,15 +51,23 @@
   display: block;
 }
 
+/* Press feedback: the inner body scales down while the button is held. The
+   pose animation runs on the same element, so a brief press simply feels like
+   a squish without affecting the accessory micro-animations. */
+.sprite:active .spriteBody {
+  animation-play-state: paused !important;
+  transform: scale(0.94) !important;
+}
+
 /* ── per-pose animation of the whole mascot ──────────────────────────────── */
 
-.sprite[data-pose='idle'] { animation: float 3s ease-in-out infinite; }
-.sprite[data-pose='thinking'] { animation: pulse 1.2s ease-in-out infinite; }
-.sprite[data-pose='writing'] { animation: wiggle 0.7s ease-in-out infinite; }
-.sprite[data-pose='working'] { animation: bounce 0.7s ease-in-out infinite; }
-.sprite[data-pose='waiting'] { animation: sway 1.6s ease-in-out infinite; }
-.sprite[data-pose='error'] { animation: shake 0.4s ease-in-out infinite; }
-.sprite[data-pose='done'] { animation: celebrate 1.4s ease-in-out; }
+.sprite[data-pose='idle'] .spriteBody { animation: float 3s ease-in-out infinite; }
+.sprite[data-pose='thinking'] .spriteBody { animation: pulse 1.2s ease-in-out infinite; }
+.sprite[data-pose='writing'] .spriteBody { animation: wiggle 0.7s ease-in-out infinite; }
+.sprite[data-pose='working'] .spriteBody { animation: bounce 0.7s ease-in-out infinite; }
+.sprite[data-pose='waiting'] .spriteBody { animation: sway 1.6s ease-in-out infinite; }
+.sprite[data-pose='error'] .spriteBody { animation: shake 0.4s ease-in-out infinite; }
+.sprite[data-pose='done'] .spriteBody { animation: celebrate 1.4s ease-in-out; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -120,20 +136,447 @@
   50% { opacity: 1; }
 }
 
-.pencil { transform-origin: 92px 60px; transform-box: fill-box; }
-.sprite[data-pose='writing'] .pencil { animation: scribble 0.9s ease-in-out infinite; }
-
-@keyframes scribble {
-  0%, 100% { transform: rotate(45deg) translate(0, 0); }
-  50% { transform: rotate(45deg) translate(2px, -2px); }
-}
-
 .sweat { transform-origin: 88px 59px; transform-box: fill-box; }
 .sprite[data-pose='error'] .sweat { animation: drip 1.4s ease-in-out infinite; }
 
 @keyframes drip {
   0%, 100% { transform: translateY(0); opacity: 0.9; }
   50% { transform: translateY(4px); opacity: 0.5; }
+}
+
+/* ── Blob: a vivid blue ball with a wiggly antenna and blinking eyes ─────── */
+
+.blob {
+  transform-origin: 60px 80px;
+  animation: blob-breathe 2.6s ease-in-out infinite;
+}
+
+.blobBody {
+  transform-origin: 60px 70px;
+}
+
+.blobAntenna {
+  transform-origin: 60px 32px;
+  animation: blob-antenna-wiggle 3s ease-in-out infinite;
+}
+
+.blobAntenna .star {
+  transform-origin: 56px 13px;
+  transform-box: fill-box;
+}
+
+.blobEyes {
+  transform-origin: 60px 66px;
+}
+
+.blobEyelid {
+  opacity: 0;
+  animation: blob-blink 4s ease-in-out infinite;
+}
+
+.blobCheeks {
+  transform-origin: 60px 78px;
+  animation: blob-cheek-pulse 3s ease-in-out infinite;
+}
+
+.blobFace {
+  transform-origin: 60px 82px;
+}
+
+/* Pose-specific Blob language. */
+.sprite[data-pose='thinking'] .blobAntenna { animation: blob-antenna-wiggle 1.2s ease-in-out infinite; }
+.sprite[data-pose='writing'] .blobBody { animation: blob-tilt 0.7s ease-in-out infinite; }
+.sprite[data-pose='working'] .blobAntenna .star { animation: spin 0.6s linear infinite; }
+.sprite[data-pose='waiting'] .blob { animation: blob-sway 1.6s ease-in-out infinite; }
+.sprite[data-pose='error'] .blob { animation: blob-shiver 0.35s ease-in-out infinite; }
+.sprite[data-pose='error'] .blobAntenna { transform: rotate(-18deg); }
+.sprite[data-pose='done'] .blobAntenna .star { animation: spin 0.5s linear infinite; }
+
+@keyframes blob-breathe {
+  0%, 100% { transform: scale(1, 1) translateY(0); }
+  50% { transform: scale(1.02, 0.98) translateY(-1.5px); }
+}
+
+@keyframes blob-antenna-wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes blob-tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes blob-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes blob-shiver {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes blob-blink {
+  0%, 96%, 100% { opacity: 0; }
+  98% { opacity: 1; }
+}
+
+@keyframes blob-cheek-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* ── Bot: a hovering robot head with beacon antenna and scanning LED eyes ─── */
+
+.bot {
+  transform-origin: 60px 70px;
+  animation: bot-hover 3s ease-in-out infinite;
+}
+
+.botAntenna {
+  transform-origin: 60px 28px;
+  animation: bot-beacon 2s ease-in-out infinite;
+}
+
+.botHead {
+  transform-origin: 60px 70px;
+  animation: bot-face-breathe 2.5s ease-in-out infinite;
+}
+
+.botEyes {
+  transform-origin: 60px 66px;
+}
+
+.botScan {
+  transform-origin: center;
+  transform-box: fill-box;
+  opacity: 0;
+}
+
+.sprite[data-pose='thinking'] .botScan,
+.sprite[data-pose='working'] .botScan {
+  animation: bot-scan 2s linear infinite;
+  opacity: 0.4;
+}
+
+.sprite[data-pose='thinking'] .botScan { animation-duration: 1s; }
+.sprite[data-pose='working'] .botScan { animation-duration: 0.5s; }
+
+.botEyeRight .botScan {
+  animation-delay: 0.3s;
+}
+
+/* Pose-specific Bot language. */
+.sprite[data-pose='thinking'] .botAntenna { animation: bot-beacon 0.8s ease-in-out infinite; }
+.sprite[data-pose='working'] .botAntenna { animation: bot-beacon 0.4s ease-in-out infinite; }
+.sprite[data-pose='error'] .botAntenna circle { fill: #EF4444; }
+.sprite[data-pose='error'] .bot { animation: bot-malfunction 0.35s ease-in-out infinite; }
+.sprite[data-pose='done'] .botAntenna circle { fill: #22C55E; }
+
+@keyframes bot-hover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes bot-beacon {
+  0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px #6EE7B7); }
+  50% { opacity: 0.6; filter: drop-shadow(0 0 6px #6EE7B7); }
+}
+
+@keyframes bot-face-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.01); }
+}
+
+@keyframes bot-scan {
+  0% { transform: translateX(-22px); opacity: 0; }
+  20% { opacity: 0.4; }
+  80% { opacity: 0.4; }
+  100% { transform: translateX(22px); opacity: 0; }
+}
+
+@keyframes bot-malfunction {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px) rotate(-1deg); }
+  75% { transform: translateX(2px) rotate(1deg); }
+}
+
+/* ── Ghost: a floating violet specter with a waving hem and blinking eyes ─── */
+
+.ghost {
+  transform-origin: 60px 70px;
+  animation: ghost-float 3.2s ease-in-out infinite;
+}
+
+.ghostBody {
+  transform-origin: 60px 70px;
+  animation: ghost-fade 3s ease-in-out infinite;
+}
+
+.ghostHem {
+  transform-origin: 60px 82px;
+  animation: ghost-hem-wave 2s ease-in-out infinite;
+}
+
+.ghostEyes {
+  transform-origin: 60px 66px;
+}
+
+.ghostEyelid {
+  opacity: 0;
+  animation: ghost-blink 4s ease-in-out infinite;
+}
+
+.ghostCheeks {
+  transform-origin: 60px 78px;
+  animation: ghost-cheek-pulse 3s ease-in-out infinite;
+}
+
+/* Pose-specific Ghost language. */
+.sprite[data-pose='thinking'] .ghost { animation: ghost-sway 2s ease-in-out infinite; }
+.sprite[data-pose='thinking'] .ghostHem { animation: ghost-hem-wave 1s ease-in-out infinite; }
+.sprite[data-pose='working'] .ghostBody { animation: ghost-fade 0.8s ease-in-out infinite; }
+.sprite[data-pose='waiting'] .ghost { animation: ghost-sway 1.6s ease-in-out infinite; }
+.sprite[data-pose='error'] .ghost { animation: ghost-shiver 0.35s ease-in-out infinite; }
+.sprite[data-pose='error'] .ghostBody path,
+.sprite[data-pose='error'] .ghostHem path {
+  fill: var(--dsw-static-purple-300, #C4B5FD);
+  stroke: var(--dsw-alias-state-error-primary, #EF4444);
+}
+.sprite[data-pose='done'] .ghost { animation: ghost-bounce 1.2s ease-in-out infinite; }
+
+@keyframes ghost-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes ghost-fade {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 1; }
+}
+
+@keyframes ghost-hem-wave {
+  0%, 100% { transform: skewX(-2deg); }
+  50% { transform: skewX(2deg); }
+}
+
+@keyframes ghost-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes ghost-shiver {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes ghost-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-4px); }
+}
+
+@keyframes ghost-blink {
+  0%, 96%, 100% { opacity: 0; }
+  98% { opacity: 1; }
+}
+
+@keyframes ghost-cheek-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+/* ── Cat: a lively, game-like character with layered body animation ─────── */
+
+.cat {
+  transform-origin: 60px 95px;
+  animation: cat-breathe 2.4s ease-in-out infinite;
+}
+
+.catTail {
+  transform-origin: 76px 90px;
+  animation: cat-tail-idle 3s ease-in-out infinite;
+}
+
+.catEarLeft,
+.catEarRight {
+  transform-origin: 40px 38px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.catEarRight {
+  transform-origin: 80px 38px;
+}
+
+.catEyelid {
+  opacity: 0;
+  animation: cat-blink 4s ease-in-out infinite;
+}
+
+.catWhiskers {
+  transform-origin: 60px 72px;
+  animation: cat-whisker-twitch 5s ease-in-out infinite;
+}
+
+.catPaws {
+  transform-origin: 60px 108px;
+  animation: cat-paw-tap 4s ease-in-out infinite;
+}
+
+/* Ear rotations per pose: forward for focus, flat back for error, relaxed for done. */
+.sprite[data-pose='thinking'] .catEarLeft { transform: rotate(8deg); }
+.sprite[data-pose='thinking'] .catEarRight { transform: rotate(-8deg); }
+
+.sprite[data-pose='writing'] .catEarLeft { transform: rotate(10deg); }
+.sprite[data-pose='writing'] .catEarRight { transform: rotate(-4deg); }
+
+.sprite[data-pose='working'] .catEarLeft { transform: rotate(14deg); }
+.sprite[data-pose='working'] .catEarRight { transform: rotate(-14deg); }
+
+.sprite[data-pose='waiting'] .catEarLeft { transform: rotate(6deg); }
+.sprite[data-pose='waiting'] .catEarRight { transform: rotate(-6deg); }
+
+.sprite[data-pose='error'] .catEarLeft { transform: rotate(-24deg); }
+.sprite[data-pose='error'] .catEarRight { transform: rotate(24deg); }
+
+.sprite[data-pose='done'] .catEarLeft { transform: rotate(-8deg); }
+.sprite[data-pose='done'] .catEarRight { transform: rotate(8deg); }
+
+/* Tail language per pose: idle sway, alert flick, puffed for error, happy flick for done. */
+.sprite[data-pose='thinking'] .catTail { animation: cat-tail-tip 2s ease-in-out infinite; }
+.sprite[data-pose='writing'] .catTail { animation: cat-tail-slow 2.5s ease-in-out infinite; }
+.sprite[data-pose='working'] .catTail { animation: cat-tail-alert 0.7s ease-in-out infinite; }
+.sprite[data-pose='waiting'] .catTail { animation: cat-tail-wrap 2s ease-in-out infinite; }
+.sprite[data-pose='error'] .catTail { animation: cat-tail-puff 0.35s ease-in-out infinite; }
+.sprite[data-pose='done'] .catTail { animation: cat-tail-happy 1.2s ease-in-out infinite; }
+
+/* Cat accessories attached to the body. */
+.catThought circle {
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: cat-thought-pop 2.2s ease-in-out infinite;
+}
+.catThought circle:nth-child(2) { animation-delay: 0.2s; }
+.catThought circle:nth-child(3) { animation-delay: 0.4s; }
+
+.catPencil,
+.headPencil {
+  transform-origin: 70px 18px;
+  animation: cat-pencil-scribble 0.45s ease-in-out infinite;
+}
+
+.catHeadGear g:last-child {
+  transform-origin: 60px 6px;
+  animation: spin 1.2s linear infinite;
+}
+
+.catSpeech circle {
+  opacity: 0;
+  animation: blink 1.2s ease-in-out infinite;
+}
+.catSpeech circle:nth-child(2) { animation-delay: 0.2s; }
+.catSpeech circle:nth-child(3) { animation-delay: 0.4s; }
+
+.catSweat {
+  transform-origin: 48px 50px;
+  animation: cat-sweat-drip 1.4s ease-in-out infinite;
+}
+
+.catStars .star {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: cat-star-burst 1.4s ease-out infinite;
+}
+.catStars .star:nth-child(2) { animation-delay: 0.2s; }
+.catStars .star:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes cat-breathe {
+  0%, 100% { transform: scale(1, 1) translateY(0); }
+  50% { transform: scale(1.015, 0.985) translateY(-1.5px); }
+}
+
+@keyframes cat-tail-idle {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(10deg); }
+}
+
+@keyframes cat-tail-tip {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(6deg); }
+}
+
+@keyframes cat-tail-slow {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes cat-tail-alert {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes cat-tail-wrap {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes cat-tail-puff {
+  0%, 100% { transform: rotate(-10deg) scale(1); }
+  50% { transform: rotate(10deg) scale(1.08); }
+}
+
+@keyframes cat-tail-happy {
+  0%, 100% { transform: rotate(-12deg); }
+  25% { transform: rotate(8deg); }
+  75% { transform: rotate(-4deg); }
+}
+
+@keyframes cat-blink {
+  0%, 96%, 100% { opacity: 0; }
+  98% { opacity: 1; }
+}
+
+@keyframes cat-whisker-twitch {
+  0%, 90%, 100% { transform: rotate(0deg); }
+  92% { transform: rotate(0.8deg); }
+  94% { transform: rotate(-0.4deg); }
+  96% { transform: rotate(0.6deg); }
+}
+
+@keyframes cat-paw-tap {
+  0%, 90%, 100% { transform: translateY(0); }
+  95% { transform: translateY(-2px); }
+}
+
+@keyframes cat-thought-pop {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  30%, 70% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes cat-pencil-scribble {
+  0% { transform: translate(-2px, 0); }
+  20% { transform: translate(2px, -1px); }
+  40% { transform: translate(-1px, 1px); }
+  60% { transform: translate(2px, 0); }
+  80% { transform: translate(-1px, -1px); }
+  100% { transform: translate(-2px, 0); }
+}
+
+@keyframes cat-sweat-drip {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50% { transform: translateY(5px); opacity: 0.5; }
+}
+
+@keyframes cat-star-burst {
+  0% { transform: scale(0) translateY(0); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: scale(1.3) translateY(-14px); opacity: 0; }
 }
 
 /* ── the click menu, the background panel, and the attention dot ─────────── */
@@ -181,6 +624,37 @@
   gap: 4px;
   min-width: 152px;
   padding: 8px;
+}
+
+.menuStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(34, 211, 238, 0.08);
+  font-size: 12px;
+  color: #A5F3FC;
+  letter-spacing: 0.5px;
+}
+
+.menuStatusDot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22D3EE;
+  box-shadow: 0 0 8px #22D3EE;
+}
+
+.menuStatusDot[data-activity='waiting'] {
+  background: var(--dsw-alias-state-warn-primary, #F59E0B);
+  box-shadow: 0 0 8px var(--dsw-alias-state-warn-primary, #F59E0B);
+}
+
+.menuStatusDot[data-activity='error'] {
+  background: var(--dsw-alias-state-error-primary, #EF4444);
+  box-shadow: 0 0 8px var(--dsw-alias-state-error-primary, #EF4444);
 }
 
 .backgroundPanel {

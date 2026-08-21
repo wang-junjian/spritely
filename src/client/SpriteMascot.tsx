@@ -8,7 +8,7 @@
  * default corner.
  */
 import {
-  useEffect, useLayoutEffect, useRef, useState,
+  memo, useEffect, useLayoutEffect, useRef, useState,
   type ChangeEvent as ReactChangeEvent, type PointerEvent as ReactPointerEvent, type ReactElement,
 } from 'react'
 import type {
@@ -19,7 +19,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { SpriteActivity, SpriteState } from './sprite-state.ts'
 import { BACKGROUND_COLORS, BACKGROUND_GRADIENTS } from './backgrounds.ts'
 import { DEFAULT_VEIL, type BackgroundState, type ImageFit } from './background-source.ts'
-import { SPRITE_KINDS, renderSprite, type Pose, type SpriteKind } from './sprites.tsx'
+import { SPRITE_KINDS, renderSprite, type Gaze, type Pose, type SpriteKind } from './sprites.tsx'
 import css from './SpriteMascot.module.css'
 
 /** Registrant inject face: the work-state, background, and mascot-kind sources plus actions. */
@@ -91,6 +91,23 @@ interface DragGesture {
 }
 
 /**
+ * Memoised sprite SVG: only re-renders when the mascot kind, pose, or gaze
+ * changes. This keeps the surrounding HUD (menu, panels) from re-evaluating
+ * on every cursor-tracking frame.
+ */
+const SpriteSvg = memo(function SpriteSvg({ kind, pose, gaze }: {
+  kind: SpriteKind
+  pose: Pose
+  gaze: Gaze
+}): ReactElement {
+  return (
+    <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+      {renderSprite(kind, pose, gaze)}
+    </svg>
+  )
+})
+
+/**
  * Render the floating mascot, its drag-to-move surface, and the click menu.
  * @param props - composed slot props (`useSprite`, `startSession`, `t`; the global hooks stay unused).
  * @returns the mascot element tree.
@@ -124,6 +141,18 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
     }
   }, [activity])
 
+  // Close any open panel with Escape for keyboard accessibility.
+  useEffect(() => {
+    if (panel === 'closed') return
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setPanel('closed')
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => { window.removeEventListener('keydown', onKeyDown) }
+  }, [panel])
+
   // Track the cursor and nudge the pupils toward it, rAF-throttled to one
   // update per frame. The cursor is projected into the SVG viewBox (120×120)
   // so the gaze vector is already in SVG units.
@@ -148,9 +177,15 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
         })
       }
     }
+    const onLeave = (): void => {
+      latest = { x: 0, y: 0 }
+      setGaze(latest)
+    }
     window.addEventListener('mousemove', onMove)
+    document.documentElement.addEventListener('mouseleave', onLeave)
     return () => {
       window.removeEventListener('mousemove', onMove)
+      document.documentElement.removeEventListener('mouseleave', onLeave)
       if (frame !== 0) window.cancelAnimationFrame(frame)
     }
   }, [])
@@ -298,12 +333,16 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
         {(activity === 'waiting' || activity === 'error') && (
           <span className={css.attentionDot} data-kind={activity} aria-hidden="true" />
         )}
-        <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
-          {renderSprite(spriteKind, pose, gaze)}
-        </svg>
+        <span className={css.spriteBody}>
+          <SpriteSvg kind={spriteKind} pose={pose} gaze={gaze} />
+        </span>
       </button>
       {panel === 'menu' && (
         <div ref={popoverRef} className={css.menu} role="menu" aria-label={t('menu.label')}>
+          <div className={css.menuStatus} aria-live="polite">
+            <span className={css.menuStatusDot} data-activity={activity} aria-hidden="true" />
+            <span className={css.menuStatusText}>{caption}</span>
+          </div>
           <button
             type="button"
             role="menuitem"
@@ -361,7 +400,7 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
         </div>
       )}
       {panel === 'background' && (
-        <div ref={popoverRef} className={css.backgroundPanel} role="dialog" aria-label={t('background.title')}>
+        <div ref={popoverRef} className={css.backgroundPanel} role="dialog" aria-modal="true" aria-label={t('background.title')}>
           <div className={css.panelHeader}>
             <span className={css.panelTitle}>{t('background.title')}</span>
             <button
@@ -463,7 +502,7 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
         </div>
       )}
       {panel === 'sprite' && (
-        <div ref={popoverRef} className={css.spritePanel} role="dialog" aria-label={t('sprite.title')}>
+        <div ref={popoverRef} className={css.spritePanel} role="dialog" aria-modal="true" aria-label={t('sprite.title')}>
           <div className={css.panelHeader}>
             <span className={css.panelTitle}>{t('sprite.title')}</span>
             <button
