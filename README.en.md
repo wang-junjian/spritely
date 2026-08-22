@@ -50,6 +50,8 @@ The plugin carries its own `dsh.client` metadata (`platform: web` plus its `inje
 
 > Its peer dependencies (`@deepseek-ai/dsh-client-runtime`, `dsh-client-ui-layout`, `dsh-client-locale`, …) are in-box dsh packages resolved from the dsh installation itself — they need not be installed separately.
 
+![](images/dsh-plugin-spritely-install.webp)
+
 ## Usage
 
 Click the mascot to open its menu:

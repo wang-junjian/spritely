@@ -48,6 +48,8 @@ dsh plugin --profile <name> add ./spritely
 
 > 它的 peer 依赖（`@deepseek-ai/dsh-client-runtime`、`dsh-client-ui-layout`、`dsh-client-locale` 等）都是 dsh 自带的 in-box 包，从 dsh 安装本身解析，无需单独安装。
 
+![](images/dsh-plugin-spritely-install.webp)
+
 ## 使用
 
 点击精灵打开菜单：
