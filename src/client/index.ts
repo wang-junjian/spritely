@@ -5,6 +5,7 @@ import type {} from '@deepseek-ai/dsh-client-locale/client'
 import { createSpriteStateSource } from './sprite-state.ts'
 import { BackgroundPresenter, createBackgroundSource } from './background-source.ts'
 import { createSpriteKindSource } from './sprite-kind-source.ts'
+import { createSpritePositionSource } from './sprite-position-source.ts'
 import { SpriteMascot, type SpriteMascotInjected } from './SpriteMascot.tsx'
 import { en, zh, type SpriteKey } from './locales.ts'
 
@@ -17,6 +18,11 @@ export {
   type ImageFit,
 } from './background-source.ts'
 export type { SpriteKindSource } from './sprite-kind-source.ts'
+export {
+  createSpritePositionSource,
+  type SpritePosition,
+  type SpritePositionSource,
+} from './sprite-position-source.ts'
 export { SPRITE_KINDS, type Gaze, type Pose, type SpriteKind, type SpriteKindMeta } from './sprites.tsx'
 export type { SpriteMascotInjected, SpriteMascotProps } from './SpriteMascot.tsx'
 export type { SpriteKey } from './locales.ts'
@@ -49,6 +55,7 @@ export function apply(ctx: ClientContext): void {
     const source = createSpriteStateSource(ctx.sessions)
     const background = createBackgroundSource()
     const spriteKind = createSpriteKindSource()
+    const position = createSpritePositionSource()
     const presenter = new BackgroundPresenter()
     presenter.apply(background.getSnapshot())
     const unsubscribeBackground = background.subscribe(() => { presenter.apply(background.getSnapshot()) })
@@ -57,10 +64,11 @@ export function apply(ctx: ClientContext): void {
       id: 'sprite',
       locale: NS,
       inject: (): SpriteMascotInjected => ({
-        hooks: { sprite: source, background, spriteKind },
+        hooks: { sprite: source, background, spriteKind, position },
         startSession: () => { ctx.workspaces.startSession() },
         setBackground: value => { background.set(value) },
         setSpriteKind: kind => { spriteKind.set(kind) },
+        setPosition: value => { position.set(value) },
       }),
     }, SpriteMascot)
     return () => {

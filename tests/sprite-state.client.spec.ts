@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
 import {
   EMPTY_CHAT_SNAPSHOT, EMPTY_CONVERSATION_VIEWS,

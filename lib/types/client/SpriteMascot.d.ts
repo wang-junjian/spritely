@@ -12,12 +12,14 @@ import type { InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-cli
 import type { SpriteState } from './sprite-state.ts';
 import { type BackgroundState } from './background-source.ts';
 import { type SpriteKind } from './sprites.tsx';
-/** Registrant inject face: the work-state, background, and mascot-kind sources plus actions. */
+import { type SpritePosition } from './sprite-position-source.ts';
+/** Registrant inject face: the work-state, background, mascot-kind, and position sources plus actions. */
 export interface SpriteMascotInjected {
     hooks: {
         sprite: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpriteState>;
         background: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<BackgroundState | null>;
         spriteKind: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpriteKind>;
+        position: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpritePosition | null>;
     };
     /** Start a New Session through the workspaces service (default-workspace flow). */
     startSession: () => void;
@@ -25,6 +27,8 @@ export interface SpriteMascotInjected {
     setBackground: (background: BackgroundState | null) => void;
     /** Switch the active mascot kind. */
     setSpriteKind: (kind: SpriteKind) => void;
+    /** Move the anchor to a dragged position (null restores the default corner). */
+    setPosition: (position: SpritePosition | null) => void;
 }
 /** Full composed props: runtime share + bound inject share + locale seat. */
 export type SpriteMascotProps = PropsRuntime<'shell.overlay'> & InjectFace<SpriteMascotInjected> & PropsLocale<'sprite'>;
@@ -33,5 +37,5 @@ export type SpriteMascotProps = PropsRuntime<'shell.overlay'> & InjectFace<Sprit
  * @param props - composed slot props (`useSprite`, `startSession`, `t`; the global hooks stay unused).
  * @returns the mascot element tree.
  */
-export declare function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSession, setBackground, setSpriteKind, t }: SpriteMascotProps): ReactElement;
+export declare function SpriteMascot({ useSprite, useBackground, useSpriteKind, usePosition, startSession, setBackground, setSpriteKind, setPosition, t }: SpriteMascotProps): ReactElement;
 //# sourceMappingURL=SpriteMascot.d.ts.map

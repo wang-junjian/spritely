@@ -1,5 +1,34 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
+/** Minimal in-memory snapshot store with localStorage persistence. */
+function createSnapshotStore<T>(initial: T, options?: { persist?: { name: string } }): {
+  getSnapshot: () => T
+  subscribe: (fn: () => void) => () => void
+  set: (value: T) => void
+} {
+  const key = options?.persist?.name
+  const stored = key ? localStorage.getItem(key) : null
+  let current: T = stored !== null ? JSON.parse(stored) : initial
+  const listeners = new Set<() => void>()
+  return {
+    getSnapshot: () => current,
+    subscribe: (fn) => {
+      listeners.add(fn)
+      return () => { listeners.delete(fn) }
+    },
+    set: (value) => {
+      current = value
+      if (key) localStorage.setItem(key, JSON.stringify(value))
+      for (const fn of [...listeners]) fn()
+    },
+  }
+}
+
+vi.mock('@deepseek-ai/dsh-client-runtime/client', () => ({
+  createSnapshotStore,
+}))
+
 import {
   BackgroundPresenter, DEFAULT_VEIL, createBackgroundSource,
 } from '../src/client/background-source.ts'

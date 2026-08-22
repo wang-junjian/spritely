@@ -4,6 +4,7 @@ import { type SpriteKey } from './locales.ts';
 export type { SpriteActivity, SpriteState } from './sprite-state.ts';
 export { DEFAULT_VEIL, type BackgroundKind, type BackgroundSource, type BackgroundState, type ImageFit, } from './background-source.ts';
 export type { SpriteKindSource } from './sprite-kind-source.ts';
+export { createSpritePositionSource, type SpritePosition, type SpritePositionSource, } from './sprite-position-source.ts';
 export { SPRITE_KINDS, type Gaze, type Pose, type SpriteKind, type SpriteKindMeta } from './sprites.tsx';
 export type { SpriteMascotInjected, SpriteMascotProps } from './SpriteMascot.tsx';
 export type { SpriteKey } from './locales.ts';

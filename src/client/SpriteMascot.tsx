@@ -20,14 +20,16 @@ import type { SpriteActivity, SpriteState } from './sprite-state.ts'
 import { BACKGROUND_COLORS, BACKGROUND_GRADIENTS } from './backgrounds.ts'
 import { DEFAULT_VEIL, type BackgroundState, type ImageFit } from './background-source.ts'
 import { SPRITE_KINDS, renderSprite, type Gaze, type Pose, type SpriteKind } from './sprites.tsx'
+import { type SpritePosition } from './sprite-position-source.ts'
 import css from './SpriteMascot.module.css'
 
-/** Registrant inject face: the work-state, background, and mascot-kind sources plus actions. */
+/** Registrant inject face: the work-state, background, mascot-kind, and position sources plus actions. */
 export interface SpriteMascotInjected {
   hooks: {
     sprite: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpriteState>
     background: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<BackgroundState | null>
     spriteKind: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpriteKind>
+    position: import('@deepseek-ai/dsh-client-ui-slots').HostObservable<SpritePosition | null>
   }
   /** Start a New Session through the workspaces service (default-workspace flow). */
   startSession: () => void
@@ -35,6 +37,8 @@ export interface SpriteMascotInjected {
   setBackground: (background: BackgroundState | null) => void
   /** Switch the active mascot kind. */
   setSpriteKind: (kind: SpriteKind) => void
+  /** Move the anchor to a dragged position (null restores the default corner). */
+  setPosition: (position: SpritePosition | null) => void
 }
 
 /** Full composed props: runtime share + bound inject share + locale seat. */
@@ -76,12 +80,6 @@ interface MenuPlacement {
 /** Which floating surface is open beside the mascot. */
 type Panel = 'closed' | 'menu' | 'background' | 'sprite'
 
-/** A dragged (left, top) viewport position; null keeps the default bottom-right corner. */
-interface SpritePosition {
-  x: number
-  y: number
-}
-
 /** One in-flight drag gesture: pointer origin plus the anchor's layout position at grab time. */
 interface DragGesture {
   startX: number
@@ -112,7 +110,7 @@ const SpriteSvg = memo(function SpriteSvg({ kind, pose, gaze }: {
  * @param props - composed slot props (`useSprite`, `startSession`, `t`; the global hooks stay unused).
  * @returns the mascot element tree.
  */
-export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSession, setBackground, setSpriteKind, t }: SpriteMascotProps): ReactElement {
+export function SpriteMascot({ useSprite, useBackground, useSpriteKind, usePosition, startSession, setBackground, setSpriteKind, setPosition, t }: SpriteMascotProps): ReactElement {
   const state = useSprite(sel => sel)
   const activity = state.activity
   const background = useBackground(sel => sel)
@@ -121,7 +119,7 @@ export function SpriteMascot({ useSprite, useBackground, useSpriteKind, startSes
   const [panel, setPanel] = useState<Panel>('closed')
   const [imageUrl, setImageUrl] = useState('')
   const [menuPlacement, setMenuPlacement] = useState<MenuPlacement>({ vertical: 'bottom', horizontal: 'end' })
-  const [position, setPosition] = useState<SpritePosition | null>(null)
+  const position = usePosition(sel => sel)
   const [gaze, setGaze] = useState({ x: 0, y: 0 })
   const previous = useRef(activity)
   const anchorRef = useRef<HTMLDivElement>(null)

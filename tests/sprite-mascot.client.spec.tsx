@@ -3,9 +3,36 @@ import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { useSyncExternalStore } from 'react'
 import type { SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
-import { createSnapshotStore } from '@deepseek-ai/dsh-client-runtime/client'
+
+/** Minimal in-memory snapshot store used by the mascot fixture. */
+function createSnapshotStore<T>(initial: T): {
+  getSnapshot: () => T
+  subscribe: (fn: () => void) => () => void
+  set: (value: T) => void
+} {
+  let current: T = initial
+  const listeners = new Set<() => void>()
+  return {
+    getSnapshot: () => current,
+    subscribe: (fn) => {
+      listeners.add(fn)
+      return () => { listeners.delete(fn) }
+    },
+    set: (value) => {
+      current = value
+      for (const fn of [...listeners]) fn()
+    },
+  }
+}
+
+vi.mock('@deepseek-ai/dsh-client-runtime/client', () => ({
+  createSnapshotStore,
+}))
+
+import { createSnapshotStore as _ } from '@deepseek-ai/dsh-client-runtime/client'
 import type { SpriteState } from '../src/client/sprite-state.ts'
 import { DEFAULT_VEIL, type BackgroundState } from '../src/client/background-source.ts'
+import type { SpritePosition } from '../src/client/sprite-position-source.ts'
 import type { SpriteKind } from '../src/client/sprites.tsx'
 import { SpriteMascot, type SpriteMascotProps } from '../src/client/SpriteMascot.tsx'
 import { en } from '../src/client/locales.ts'
@@ -43,23 +70,31 @@ function mount(initial: SpriteState, initialBackground: BackgroundState | null =
     const snap = useSyncExternalStore(kindStore.subscribe, kindStore.getSnapshot)
     return sel(snap)
   }
+  const positionStore = createSnapshotStore<SpritePosition | null>(null)
+  const usePosition: SnapshotSelectorHook<SpritePosition | null> = <S,>(sel: (s: SpritePosition | null) => S): S => {
+    const snap = useSyncExternalStore(positionStore.subscribe, positionStore.getSnapshot)
+    return sel(snap)
+  }
   const startSession = vi.fn()
   const setBackground = vi.fn((value: BackgroundState | null) => { bgStore.set(value) })
   const setSpriteKind = vi.fn((kind: SpriteKind) => { kindStore.set(kind) })
+  const setPosition = vi.fn((value: SpritePosition | null) => { positionStore.set(value) })
   const view = render(
     <SpriteMascot
       useSprite={useSprite}
       useBackground={useBackground}
       useSpriteKind={useSpriteKind}
+      usePosition={usePosition}
       useSessions={neverHook}
       useWorkspaces={neverHook}
       startSession={startSession}
       setBackground={setBackground}
       setSpriteKind={setSpriteKind}
+      setPosition={setPosition}
       t={t}
     />,
   )
-  return { store, startSession, setBackground, setSpriteKind, view }
+  return { store, startSession, setBackground, setSpriteKind, setPosition, view }
 }
 
 /** A pointer gesture past the drag threshold, from the origin to (dx, dy). */
